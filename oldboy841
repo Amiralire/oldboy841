@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# تابع برای دریافت آدرس‌های IP با استفاده از API
+get_ips() {
+    country=$1
+    count=$2
+
+    echo "Getting $count IPs for $country..."
+    
+    for ((i=1; i<=count; i++)); do
+        ipv4=$(curl -s https://ipinfo.io/$country | grep -oP '"ip": "\K[0-9.]+')
+        ipv6=$(curl -s https://ipinfo.io/$country | grep -oP '"ip": "\K[0-9a-fA-F:]+')
+        
+        echo "IP Set $i:"
+        echo "IPv4: $ipv4"
+        echo "IPv6: $ipv6"
+        echo ""
+    done
+}
+
+# گرفتن اطلاعات از کاربر
+read -p "Enter the countries you want (use country codes, e.g., DE, IQ): " country_input
+read -p "How many IPs do you want for each country? " ip_count
+
+# تبدیل ورودی کشورها به آرایه
+IFS=',' read -r -a countries <<< "$country_input"
+
+# گرفتن IPها برای هر کشور
+for country in "${countries[@]}"; do
+    get_ips "$country" "$ip_count"
+done
