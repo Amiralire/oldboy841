@@ -1,21 +1,18 @@
 #!/bin/bash
 
-# تابع برای دریافت آدرس‌های IP با استفاده از API
+# تابع برای دریافت آدرس‌های IP
 get_ips() {
     country=$1
-    count=$2
 
-    echo "Getting $count IPs for $country..."
+    echo "Getting IPs for $country..."
     
-    for ((i=1; i<=count; i++)); do
-        ipv4=$(curl -s https://ipinfo.io/$country | grep -oP '"ip": "\K[0-9.]+')
-        ipv6=$(curl -s https://ipinfo.io/$country | grep -oP '"ip": "\K[0-9a-fA-F:]+')
-        
-        echo "IP Set $i:"
-        echo "IPv4: $ipv4"
-        echo "IPv6: $ipv6"
-        echo ""
-    done
+    # استفاده از سرویس IP‌های عمومی برای نمایش IP‌های نمونه
+    ipv4=$(curl -s https://api.ipify.org?format=json | jq -r '.ip')
+    ipv6=$(curl -s https://api6.ipify.org?format=json | jq -r '.ip')
+
+    echo "IPv4: $ipv4"
+    echo "IPv6: $ipv6"
+    echo ""
 }
 
 # گرفتن اطلاعات از کاربر
@@ -25,7 +22,12 @@ read -p "How many IPs do you want for each country? " ip_count
 # تبدیل ورودی کشورها به آرایه
 IFS=',' read -r -a countries <<< "$country_input"
 
-# گرفتن IPها برای هر کشور
+# نصب jq برای پردازش JSON
+pkg install jq
+
+# دریافت IPها برای هر کشور
 for country in "${countries[@]}"; do
-    get_ips "$country" "$ip_count"
+    for ((i=1; i<=ip_count; i++)); do
+        get_ips "$country"
+    done
 done
